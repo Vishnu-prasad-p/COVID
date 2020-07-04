@@ -72,7 +72,8 @@ app.layout = html.Div(children=[
 def update_output(value):
     dt1,ts1,pts1,ad1,cf1,pda1 = logoisticGrowthPredictor.Predict_logistic_growth_confirmed(get_districtWise(value))
     dti1 = pd.date_range(dt1[0], periods=len(ts1)+len(pts1), freq='D')
-    fig_Dist = go.Figure()
+    fig_Dist = go.Figure(layout=go.Layout(
+        title=go.layout.Title(text="Prediction for "+value)))
     fig_Dist.add_trace(go.Scatter(x=dti1[0:len(dt1)-1].tolist(), y=cf1,
                     mode='lines',
                     name='Curve Fixture'))
