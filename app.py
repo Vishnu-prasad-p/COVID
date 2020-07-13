@@ -13,6 +13,9 @@ data = get_KA_covid_data()
 dt,ts,pts,ad,cf,pda = logoisticGrowthPredictor.Predict_logistic_growth_confirmed(data)
 dti = pd.date_range(dt[0], periods=len(ts)+len(pts), freq='D')
 
+test_data = pd.read_excel('dist_predict_new_cases.xlsx')
+test_data.dropna()
+
 
 fig_State = go.Figure()
 fig_State.add_trace(go.Scatter(x=dti[0:len(dt)-1].tolist(), y=cf,
@@ -40,6 +43,16 @@ fig_State.update_layout(
 )
 
 
+animals=test_data['District'].tolist()
+
+fig_testing = go.Figure(data=[
+    go.Bar(name='Targets as per Current Lab Capacity', x=animals, y=test_data['new_target_cur_capacity_16_07'].tolist()),
+    go.Bar(name='Targets as per Standard ', x=animals, y=test_data['new_target_std_16_07'].tolist())
+])
+# Change the bar mode
+fig_testing.update_layout(barmode='group')
+
+
 app.layout = html.Div(children=[
     html.H1(children='COVID-19 Logistic growth - Karnataka',style={
             'textAlign': 'center',
@@ -62,7 +75,14 @@ app.layout = html.Div(children=[
         options=getKAADistrictDropDownValue(),
         value='Bagalkote'
     ),
-    dcc.Graph(id='district')
+    dcc.Graph(id='district'),
+     html.H1(children='COVID-19 Testing to be carried',style={
+            'textAlign': 'center',
+        }),
+    dcc.Graph(
+        id='District_tests',
+        figure=fig_testing
+    ),
 ])
 
 @app.callback(
