@@ -3,6 +3,9 @@ import json
 import pandas as pd
 import numpy as np
 
+response = requests.get("https://api.covid19india.org/v4/data-all.json")
+data = json.loads(response.content)
+
 def get_KA_covid_data():
     import requests
     import json
@@ -41,31 +44,60 @@ def getKAADistrictDropDownValue():
     import requests
     import json
     options = []
-    response = requests.get("https://api.covid19india.org/districts_daily.json")
-    data = json.loads(response.content)
-    for key,value in data["districtsDaily"]["Karnataka"].items():
-        options.append({'label': key, 'value': key})
+    for key, val in data.popitem()[1].items():
+        if key == 'KA':
+            for k,v in val['districts'].items():
+                options.append({'label': k, 'value': k})
     return options
 
 def get_districtWise(district):
     import requests
     import json
-    active = []
+    import pandas as pd
+    import numpy as np
     confirmed = []
     deceased = []
     recovered = []
     date = []
-    response = requests.get("https://api.covid19india.org/districts_daily.json")
-    data = json.loads(response.content)
-    for key,value in data["districtsDaily"]["Karnataka"].items():
-        if key == district:
-            for itm in value:
-                active.append(itm['active'])
-                confirmed.append(itm['confirmed'])
-                deceased.append(itm['deceased'])
-                recovered.append(itm['recovered'])
-                date.append(itm['date'])
-    data_df = pd.DataFrame(zip(date ,confirmed ,active ,recovered ,deceased))
+    for key,value in data.items():
+        if 'KA' in value:
+            if 'districts' in value['KA']:
+                for k,itm in value['KA']['districts'].items():
+                    if k == 'Bagalkote':
+                        confirmed.append(itm['total']['confirmed'])
+                        deceased.append(itm['total']['deceased'])
+                        recovered.append(itm['total']['recovered'])
+                        date.append(key)
+    data_df = pd.DataFrame(zip(date ,confirmed ,recovered ,deceased))
     data_df['timeStep'] = np.arange(0,len(data_df))+1
-    data_df.columns = ["Date","Confirmed","Active","Recovered","Deceased","timeStep"]
+    data_df.columns = ["Date","Confirmed","Recovered","Deceased","timeStep"]
     return data_df
+
+def allDistrictstabel():
+    import requests
+    import json
+    import pandas as pd
+    import numpy as np
+    response = requests.get("https://api.covid19india.org/state_district_wise.json")
+    data = json.loads(response.content)
+    District = []
+    Confirmed = []
+    Deceased = []
+    Recovered = [] 
+    Tested = []
+    Active = []
+    for key,values in data.items():
+        if key == "Karnataka":
+            for k,v in values["districtData"].items():
+                District.append(k)
+                Confirmed.append(v["confirmed"])
+                Deceased.append(v["deceased"])
+                Recovered.append(v["recovered"])
+                Active.append(v["active"])
+    df = pd.DataFrame(zip(District,Active,Confirmed,Deceased,Recovered))
+    df.columns = ["District","Active","Confirmed","Deceased","Recovered"]
+    df.set_index('District')
+    return df
+
+
+

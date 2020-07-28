@@ -7,11 +7,12 @@ import requests
 import json
 import pandas as pd
 from COVID_Predictior import logoisticGrowthPredictor
-from Get_KA_COVID_Data import get_KA_covid_data,getKAADistrictDropDownValue,get_districtWise
-from app_figures import values,statepredictorGraph,stateDeseased,stateRecovered,stateActive
+from Get_KA_COVID_Data import get_KA_covid_data,getKAADistrictDropDownValue,get_districtWise,allDistrictstabel
+from app_figures import values,statepredictorGraph,stateDeseased,stateRecovered,stateActive,statePie,districtPie
 PLOTLY_LOGO = "https://www.codrindia.org/assets/images/logo/codr-icon-1.jpg"
 
-
+df = allDistrictstabel()
+from Get_KA_COVID_Data import get_KA_covid_data
 import base64
 #BS = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
 #app = dash.Dash(external_stylesheets=[BS])
@@ -51,7 +52,7 @@ app.title = 'CODR'
 
 
 body = html.Div([
-html.Br()
+html.H6("LIVE")
 ,dbc.Navbar(
     [
         html.A(
@@ -61,7 +62,7 @@ html.Br()
                     dbc.Col(html.Img(src=PLOTLY_LOGO, height="40px")),
                     dbc.Col(dbc.NavbarBrand("CODR COVID-19 DASHBOARD", className="ml-2")),
                 ],
-                align='left',
+                align='centre',
                 no_gutters=True,
             ),
 
@@ -94,9 +95,15 @@ html.Br()
                      html.P(values()['DECEASED'])
                  ],color="dark",style={"height": "6rem"}
                  )),
+                    html.Div(dbc.Alert([
+                     html.H4("ACTIVE", className="alert-heading"),
+
+                     html.P(values()['DECEASED'])
+                 ],color="dark",style={"height": "6rem"}
+                 )),
                  html.Div([
                      dcc.Graph(
-                         figure=statepredictorGraph(),style={"height": "12rem"},
+                         figure=statePie(),
                      )
                  ])
                  ), md=3, xs=12)
@@ -118,19 +125,12 @@ html.Br()
                                       "14th after which a spread rise is seen in most regions of the state. ", color="light"))),md =6 , xs =12)
 
         , dbc.Col((html.Div(dbc.Alert("Districts", color="light")),
-dbc.Card(
-    dbc.CardBody(
-        [
-            html.H4("PAC ANALYSIS", className="card-title"),
-            html.H6("KA COVID-19 RATES", className="card-subtitle"),
-            html.P(
-                "MORTALITY RATE ",className="card-text",
-            ),
-            dbc.CardLink("Card link", href="#"),
-            dbc.CardLink("External link", href="https://google.com"),
-        ]
-    )
-        )), md=3, xs=12)
+html.Div([
+            dcc.Graph(
+                figure=districtPie(),style={"height": "35rem"},
+            )
+        ]),html.Div(dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True))
+                   ), md=3, xs=12)
         ])
     ])
 app.layout = html.Div([body])
