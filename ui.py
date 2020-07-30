@@ -10,6 +10,7 @@ from COVID_Predictior import logoisticGrowthPredictor
 from Get_KA_COVID_Data import get_KA_covid_data,getKAADistrictDropDownValue,get_districtWise,allDistrictstabel
 from app_figures import values,statepredictorGraph,stateDeseased,stateRecovered,stateActive,statePie,districtPie
 PLOTLY_LOGO = "https://www.codrindia.org/assets/images/logo/codr-icon-1.jpg"
+import dash_table
 
 df = allDistrictstabel()
 from Get_KA_COVID_Data import get_KA_covid_data
@@ -84,10 +85,10 @@ html.H6("LIVE")
                  ],color="warning", style={"height": "6rem"}
                  )),
                 html.Div(dbc.Alert([
-                 html.H4("RECOVERED", className="alert-heading"),
 
-	             html.P(values()['RECOVERED'])
-                ],style={"height": "6rem"}
+                     html.H4("ACTIVE", className="alert-heading"),
+                     html.P(values()['Active'])
+                ],style={"height": "6rem"},color="danger"
                     )),
                  html.Div(dbc.Alert([
                      html.H4("DECEASED", className="alert-heading"),
@@ -96,10 +97,9 @@ html.H6("LIVE")
                  ],color="dark",style={"height": "6rem"}
                  )),
                     html.Div(dbc.Alert([
-                     html.H4("ACTIVE", className="alert-heading"),
-
-                     html.P(values()['DECEASED'])
-                 ],color="dark",style={"height": "6rem"}
+                    html.H4("RECOVERED", className="alert-heading"),
+	             html.P(values()['RECOVERED'])
+                 ],style={"height": "6rem"}
                  )),
                  html.Div([
                      dcc.Graph(
@@ -118,18 +118,23 @@ html.H6("LIVE")
                         
                    ])),
                    html.Div(id='tabs-content1'),
-                   html.Div(dbc.Alert("The first instance of the virus in the State of Karnataka was seen from a person with travel"
-                                      " history from Dubai. Most of the cases that followed were present in patients who had an outside "
-                                      "country travel history for the first fifteen days from the instance of virus in the state of  Karnataka."
-                                      " The State Government and the citizens have excelled in its execution of protocols up until the date of June "
-                                      "14th after which a spread rise is seen in most regions of the state. ", color="light"))),md =6 , xs =12)
+                   html.Div(dbc.Alert("The model are inaccurate to the complex, evolving, and heterogeneous realities"
+                                        " of different uncertainties. Predictions are uncertain by nature and take into account an error of <10% which is acceptable"
+                                        " under prediction norms in Artificial Intelligence and Machine learning.This website and its contents herein, including all data, mapping, and analysis are copyright 2020 PAC, all rights reserved. When linking to the website, attribute the Website as the COVID-19 Dashboard by the Center for Open Data Research, India", color="light"))),md =6 , xs =12)
 
         , dbc.Col((html.Div(dbc.Alert("Districts", color="light")),
 html.Div([
             dcc.Graph(
                 figure=districtPie(),style={"height": "35rem"},
             )
-        ]),html.Div(dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True))
+        ]),html.Div(dash_table.DataTable(
+    data=df.to_dict('records'),
+    columns=[{'id': c, 'name': c} for c in df.columns],
+    page_action='none',
+    style_table={'height': '250px', 'overflowY': 'auto'},
+    style_header={'backgroundColor': '#002b36'}, style_cell={ 'backgroundColor': '#002b36', 'color': 'white' }
+)
+)
                    ), md=3, xs=12)
         ])
     ])
@@ -141,7 +146,7 @@ def render_content(tab):
     if tab == 'tab-1':
         return html.Div([
             dcc.Graph(
-                figure=statepredictorGraph()
+                figure=statepredictorGraph(),style={"height": "45rem"}
             )
         ])
     elif tab == 'tab-2':
